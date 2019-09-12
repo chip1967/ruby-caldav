@@ -65,7 +65,7 @@ module CalDAV
         http.use_ssl = @ssl
         http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       end
-      http.max_retries = 3
+      # http.max_retries = 3
       http
     end
 
@@ -95,23 +95,22 @@ module CalDAV
         result = ""
         #puts res.body
         xml = REXML::Document.new(res.body)
-        REXML::XPath.each( xml, '//c:calendar-data/', {"c"=>"urn:ietf:params:xml:ns:caldav"} ){|c| result << c.text}
-        r = Icalendar.parse(result)
-        unless r.empty?
-          r.each do |calendar|
-            calendar.events.each do |event|
-              events << event
+        REXML::XPath.each( xml, '//c:calendar-data/', {"c"=>"urn:ietf:params:xml:ns:caldav"} ) do |c|
+          r = Icalendar.parse(c.text)
+          unless r.empty?
+            r.each do |calendar|
+              calendar.events.each do |event|
+                events << event
+              end
             end
           end
-          events
-        else
-          return false
         end
+        events
     end
 
     def find_event uuid
+      res = nil
       with_retry do
-        res = nil
         __create_http.start {|http|
           req = Net::HTTP::Get.new("#{@url}/#{uuid}.ics")
           if not @authtype == 'digest'
@@ -135,8 +134,8 @@ module CalDAV
     end
 
     def delete_event uuid
+      res = nil
       with_retry do
-        res = nil
         __create_http.start {|http|
           req = Net::HTTP::Delete.new("#{@url}/#{uuid}.ics")
           if not @authtype == 'digest'

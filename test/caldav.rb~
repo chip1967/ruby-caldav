@@ -1,0 +1,6 @@
+require 'agcaldav'
+
+puts "Test"
+cal = CalDAV::Client.new "prattennas.local", 5000, "/caldav/openhab/admin--waswabue", "openhab", "habopen"
+req = cal.report "20111201T000000", "20231231T000000"
+puts req.body
