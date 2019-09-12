@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.homepage    = %q{https://github.com/sonicdes/ruby-caldav}
   s.authors     = [%q{Denis Sadomowski}]
   s.email       = [%q{sonicdes@gmail.com}]
-  s.add_dependency 'icalendar', '~> 1.x'
+  s.add_dependency 'icalendar', '~> 2.x'
   s.add_dependency 'uuid', '~> 2.x'
   s.add_dependency 'net-http-digest_auth', '~> 1.x'
   s.add_dependency 'builder', '~> 3.x'

@@ -1,4 +1,4 @@
-
+=begin
 
 module Icalendar
   # A Event calendar component is a grouping of component
@@ -119,3 +119,4 @@ module Icalendar
 
   end
 end
+=end

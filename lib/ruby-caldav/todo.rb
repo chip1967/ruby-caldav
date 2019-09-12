@@ -1,3 +1,4 @@
+=begin
 module Icalendar
   class Todo < Component
     ical_component :alarms
@@ -46,3 +47,4 @@ module Icalendar
 
   end
 end
+=end

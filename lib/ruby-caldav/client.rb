@@ -96,7 +96,7 @@ module CalDAV
         #puts res.body
         xml = REXML::Document.new(res.body)
         REXML::XPath.each( xml, '//c:calendar-data/', {"c"=>"urn:ietf:params:xml:ns:caldav"} ) do |c|
-          r = Icalendar.parse(c.text)
+          r = Icalendar::Calendar.parse(c.text)
           unless r.empty?
             r.each do |calendar|
               calendar.events.each do |event|
@@ -123,7 +123,7 @@ module CalDAV
         errorhandling res
       end
       begin
-      	r = Icalendar.parse(res.body)
+      	r = Icalendar::Calendar.parse(res.body)
       rescue
       	return false
       else
@@ -155,28 +155,18 @@ module CalDAV
       end
     end
 
-    def create_event event
+    def create_event
+      event = Icalendar::Event.new
+      yield event
+      add_event event
+    end
+
+    def add_event event
       c = Calendar.new
-      c.events = []
       uuid = UUID.new.generate
       raise DuplicateError if entry_with_uuid_exists?(uuid)
-      c.event do
-        uid           uuid
-        dtstart       DateTime.parse(event[:start])
-        dtend         DateTime.parse(event[:end])
-        categories    event[:categories]# Array
-        contacts      event[:contacts] # Array
-        attendees     event[:attendees]# Array
-        duration      event[:duration]
-        summary       event[:title]
-        description   event[:description]
-        klass         event[:accessibility] #PUBLIC, PRIVATE, CONFIDENTIAL
-        location      event[:location]
-        geo_location  event[:geo_location]
-        status        event[:status]
-        url           event[:url]
-        rrule         event[:rrule]
-      end
+      event.uid = uuid
+      c.add_event event
       cstring = c.to_ical
       with_retry do
         res = nil
@@ -198,8 +188,8 @@ module CalDAV
 
     def update_event event
       #TODO... fix me
-      if delete_event event[:uid]
-        create_event event
+      if delete_event event.uid
+        add_event event
       else
         return false
       end
@@ -221,7 +211,7 @@ module CalDAV
         res = http.request( req )
       }
       errorhandling res
-      r = Icalendar.parse(res.body)
+      r = Icalendar::Calendar.parse(res.body)
       r.first.todos.first
     end
 
@@ -319,7 +309,7 @@ module CalDAV
       }
       begin
         errorhandling res
-      	Icalendar.parse(res.body)
+      	Icalendar::Calendar.parse(res.body)
       rescue
       	return false
       else
