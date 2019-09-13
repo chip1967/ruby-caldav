@@ -104,7 +104,6 @@ module CalDAV
         else
           req.body = rep.to_xml
         end
-        puts req.body
         res = http.request(req)
       }
         errorhandling res
