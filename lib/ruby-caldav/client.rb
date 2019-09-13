@@ -69,6 +69,18 @@ module CalDAV
       http
     end
 
+    def self.convert_to_str(value)
+      if value.respond_to? :utc
+        value.utc.strftime("%Y%m%dT%H%M%S")
+      elsif value.respond_to? :strftime
+        value.utc.strftime("%Y%m%dT%H%M%S")
+      elsif value.is_a? Integer
+        Time.at(value).utc.strftime("%Y%m%dT%H%M%S")
+      else
+        Time.parse(value).utc.strftime("%Y%m%dT%H%M%S")
+      end
+    end      
+
     def find_events data
       result = ""
       events = []
@@ -82,13 +94,9 @@ module CalDAV
 		else
 			req.add_field 'Authorization', digestauth('REPORT')
 		end
-        if data[:start].is_a? Integer
-          rep = CalDAV::Request::ReportVEVENT.new(Time.at(data[:start]).utc.strftime("%Y%m%dT%H%M%S"),
-                                                  Time.at(data[:end]).utc.strftime("%Y%m%dT%H%M%S") )
-        else
-          rep = CalDAV::Request::ReportVEVENT.new(Time.parse(data[:start]).utc.strftime("%Y%m%dT%H%M%S"),
-                                                  Time.parse(data[:end]).utc.strftime("%Y%m%dT%H%M%S") )
-        end
+        dtstart = Client.convert_to_str(data[:start])
+        dtend = Client.convert_to_str(data[:end])
+        rep = CalDAV::Request::ReportVEVENT.new(dtstart, dtend)
         if block_given?
           req.body = rep.to_xml do |xml|
             yield xml
@@ -96,6 +104,7 @@ module CalDAV
         else
           req.body = rep.to_xml
         end
+        puts req.body
         res = http.request(req)
       }
         errorhandling res

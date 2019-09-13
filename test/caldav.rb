@@ -3,16 +3,15 @@ require 'ruby-caldav'
 
 puts "Test"
 cal = CalDAV::Client.new(uri: "http://prattennas.local:5000/caldav/openhab/admin--waswabue", user: "openhab", password: "habopen")
-=begin
 result = cal.create_event do |event|
   event.dtstart = Icalendar::Values::DateTime.new "20190912T100000", :tzid => "Europe/London"
   event.dtend = Icalendar::Values::DateTime.new "20190912T100000", :tzid => "Europe/London"
   event.summary = "Some Meeting"
   event.description = "Meeting about something"
-  event.categories = "Test"
-  event.categories = "Test2"
-  event.rrule = Icalendar::Values::Recur.new("FREQ=WEEKLY;COUNT=10;BYDAY=WE;WKST=SU")
+  event.categories = ["Openhab", "Action"]
+#  event.rrule = Icalendar::Values::Recur.new("FREQ=WEEKLY;COUNT=10;BYDAY=WE;WKST=SU")
 end
+=begin
 result = cal.create_event do |event|
   event.dtstart = Icalendar::Values::Date.new "20190912"
   event.dtend = Icalendar::Values::Date.new "20190912"
@@ -23,8 +22,11 @@ result = cal.create_event do |event|
 end
 =end
 
-req = cal.find_events(start: "20190913T000000", end:"20231231T000000") do |xml|
-  CalDAV::Request.prop_equals "CATEGORIES", "Test2", xml
+puts result.categories
+
+req = cal.find_events(start: "20180913T000000", end:"20231231T000000") do |xml|
+  CalDAV::Request.prop_equals "CATEGORIES", "Openhab", xml
+  CalDAV::Request.prop_equals "CATEGORIES", "Action", xml
 end
 
 puts "*"*20 + "RESULTS" + "*"*20
