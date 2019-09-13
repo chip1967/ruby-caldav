@@ -5,6 +5,7 @@ module CalDAV
     module Request
         class Base
             def initialize
+                #@xml = Builder::XmlMarkup.new()
                 @xml = Builder::XmlMarkup.new(:indent => 2)
                 @xml.instruct!
             end
@@ -29,7 +30,15 @@ module CalDAV
                     end
                 end
             end
-        end    
+        end
+
+        def self.prop_equals(prop, value, xml)
+          xml.c 'prop-filter'.intern, :name => prop do
+            xml.c 'text-match'.intern do
+              xml.cdata! value
+            end
+          end 
+        end
 
         class ReportVEVENT < Base
             attr_accessor :tstart, :tend
@@ -49,7 +58,10 @@ module CalDAV
                     xml.c :filter do
                         xml.c 'comp-filter'.intern, :name=> 'VCALENDAR' do
                             xml.c 'comp-filter'.intern, :name=> 'VEVENT' do
-                                xml.c 'time-range'.intern, :start=> "#{tstart}Z", :end=> "#{tend}Z"
+                                if tstart || tend
+                                  xml.c 'time-range'.intern, :start=> "#{tstart}Z", :end=> "#{tend}Z"
+                                end
+                                yield(xml) if block_given?
                             end
                         end
                     end

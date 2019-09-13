@@ -82,12 +82,19 @@ module CalDAV
 		else
 			req.add_field 'Authorization', digestauth('REPORT')
 		end
-		    if data[:start].is_a? Integer
-          req.body = CalDAV::Request::ReportVEVENT.new(Time.at(data[:start]).utc.strftime("%Y%m%dT%H%M%S"),
-                                                        Time.at(data[:end]).utc.strftime("%Y%m%dT%H%M%S") ).to_xml
+        if data[:start].is_a? Integer
+          rep = CalDAV::Request::ReportVEVENT.new(Time.at(data[:start]).utc.strftime("%Y%m%dT%H%M%S"),
+                                                  Time.at(data[:end]).utc.strftime("%Y%m%dT%H%M%S") )
         else
-          req.body = CalDAV::Request::ReportVEVENT.new(Time.parse(data[:start]).utc.strftime("%Y%m%dT%H%M%S"),
-                                                        Time.parse(data[:end]).utc.strftime("%Y%m%dT%H%M%S") ).to_xml
+          rep = CalDAV::Request::ReportVEVENT.new(Time.parse(data[:start]).utc.strftime("%Y%m%dT%H%M%S"),
+                                                  Time.parse(data[:end]).utc.strftime("%Y%m%dT%H%M%S") )
+        end
+        if block_given?
+          req.body = rep.to_xml do |xml|
+            yield xml
+          end
+        else
+          req.body = rep.to_xml
         end
         res = http.request(req)
       }
