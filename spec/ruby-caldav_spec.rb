@@ -4,7 +4,7 @@ require 'fakeweb'
 
 require 'ruby-caldav'
 
-describe CalDAV::Client do
+RSpec.describe CalDAV::Client do
 
   before(:each) do
     @c = CalDAV::Client.new(:uri => "http://localhost:8008/calendars/users/user1/calendar/", :user => "user1" , :password => "password1")
@@ -19,7 +19,7 @@ describe CalDAV::Client do
   end
 
   it "check Class of client" do
-    @c.class.to_s.should == "CalDAV::Client"
+    expect(@c.class.to_s).to eq "CalDAV::Client"
   end
 
 end
